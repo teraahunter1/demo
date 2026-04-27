@@ -1,0 +1,101 @@
+<div class="complaints-container">
+    <div class="complaints-header">
+        <div>
+            <h2>All Records</h2>
+            <p>Showing all documents from the collection. Columns adjust automatically to match your imported data.</p>
+        </div>
+        <span class="complaints-count"><%= records ? records.length : 0 %> records</span>
+    </div>
+
+    <% if (!records || records.length === 0) { %>
+        <div class="empty-state">
+            <p>No records found.</p>
+        </div>
+    <% } else { %>
+        <% 
+            // Identify all unique keys across all records for the headers
+            let columns = [];
+            records.forEach(record => {
+                // Convert Mongoose document to plain object to see all fields
+                const data = typeof record.toObject === 'function' ? record.toObject() : record;
+                Object.keys(data).forEach(key => {
+                    if (!columns.includes(key) && key !== '__v' && key !== '_id') {
+                        columns.push(key);
+                    }
+                });
+            });
+        %>
+
+        <div class="table-responsive">
+            <table class="complaints-table">
+                <thead>
+                    <tr>
+                        <th>Index</th>
+                        <% columns.forEach(column => { %>
+                            <th><%= column.charAt(0).toUpperCase() + column.slice(1) %></th>
+                        <% }); %>
+                        <th>Delete</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% records.forEach((record, index) => { %>
+                        <tr>
+                            <td><strong><%= index + 1 %></strong></td>
+                            <% columns.forEach(column => { %>
+                                <td>
+                                    <% const value = record[column]; %>
+                                    <% if (value instanceof Date || (column === 'createdAt' && value)) { %>
+                                        <%= new Date(value).toLocaleDateString() %>
+                                    <% } else if (typeof value === 'object' && value !== null) { %>
+                                        <pre style="font-size: 0.75rem; margin: 0;"><%= JSON.stringify(value, null, 2) %></pre>
+                                    <% } else if (value === null || value === undefined) { %>
+                                        <span class="cell-empty">—</span>
+                                    <% } else if (typeof value === 'string' && value.length > 20) { %>
+                                        <span class="truncated-msg" onclick="showFullMessage('<%= value.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '\\r') %>')"><%= value.split(' ').slice(0, 3).join(' ') %>...</span>
+                                    <% } else { %>
+                                        <%= value %>
+                                    <% } %>
+                                </td>
+                            <% }); %>
+                            <td>
+                                <a href="/delete/<%= record._id %>" onclick="return confirm('Are you sure?');" class="delete-btn">Delete</a>
+                            </td>
+                            <td>
+                                <a href="/edit/<%= record._id %>" class="edit-link">Edit</a>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
+
+<!-- Modal for full message -->
+<div id="messageModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3>Full Message</h3>
+        <p id="fullMessageText"></p>
+    </div>
+</div>
+
+<script>
+function showFullMessage(message) {
+    document.getElementById('fullMessageText').textContent = message;
+    document.getElementById('messageModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('messageModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('messageModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>

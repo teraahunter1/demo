@@ -1,0 +1,34 @@
+
+
+<div class="form-container">
+    <div class="form-header">
+        <h2>Edit Contact id =  <%= contact._id %></h2>
+        <p>Update contact information</p>
+    </div>
+
+
+    <form action="/update/<%= contact._id %>" method="POST" class="edit-form">
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" class="form-control" value="<%= contact.name %>" required autofocus>
+    </div>
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" class="form-control" value="<%= contact.email %>" required>
+    </div>
+    <div class="form-group">
+        <label for="mob">Mobile:</label>
+        <input type="tel" id="mob" name="phone" class="form-control" value="<%= contact.phone %>" required>
+    </div>
+    <div class="form-group">
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="subject" class="form-control" value="<%= contact.subject %>" required>
+    </div>
+    <div class="form-group">
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="5" class="form-control" required><%= contact.message %></textarea>
+    </div>
+    <button type="submit" class="btn-submit">Update Contact</button>
+    </form>
+</div>
+
